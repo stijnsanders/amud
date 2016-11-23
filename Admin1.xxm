@@ -1,0 +1,39 @@
+[[@DataLank,feed,jsonDoc,tools]][[!var
+FeedID,ItemID,ParentID:integer;
+AdminKey:UTF8String;
+d:IJSONDocument;
+qr:TQueryResult;
+]][[
+FeedID:=Context['f'].AsInteger;
+AdminKey:=AMUDData[FeedID].CheckKey(Context['k'].Value);
+
+ItemID:=Context['i'].AsInteger;
+
+if Context['data'].Value='' then d:=JSON else d:=JSON.Parse(Context['data'].Value);//check
+
+qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[ItemID]);
+try
+  ParentID:=qr.GetInt('ParentID');
+finally
+  qr.Free;
+end;
+
+DBCon.BeginTrans;
+try
+  DBCon.Execute('update Item set name=?,data=? where ID=?',
+    [Context['name'].Value
+    ,d.ToString//,Context['data'].Value
+    ,ItemID
+    ]);
+  DBCon.CommitTrans;
+except
+  DBCon.RollbackTrans;
+  raise;
+end;
+
+if ParentID=AMUDData[FeedID].Info.PersonID then
+  AMUDData[FeedID].SendText(qx(ItemID,'ii'))
+else
+  AMUDData.SendToRoom(ParentID,qx(ItemID,'ii'));
+
+<<p><b>Updated!</b></p>

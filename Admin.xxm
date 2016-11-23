@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<title>Another Multi User Dungeon: Administration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="info.css" rel="stylesheet" />
+</head>
+<body>
+[[@DataLank,feed,tools]][[!var
+AdminKey:UTF8String;
+FeedID:integer;
+qr:TQueryResult;
+]][[
+FeedID:=Context['f'].AsInteger;
+AdminKey:=AMUDData[FeedID].CheckKey(Context['k'].Value);
+
+qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[Context['i'].AsInteger]);
+try
+  <<p><b title="[[=qr['key']]]">>=Context['i'].AsInteger<</b>>
+  if Context['r'].AsInteger<>0 then
+   begin
+    ]] <a href="Admin.xxm[[?'i',Context['r'].AsInteger,'f',FeedID,'k',AdminKey]]">room...</a>>
+   end;
+  if Context['a'].AsInteger<>0 then
+   begin
+    ]] <a href="Admin.xxm[[?'i',Context['a'].AsInteger,'f',FeedID,'k',AdminKey]]">person...</a>>
+   end;
+  if qr.GetStr('key')='' then
+   begin
+    ]] <a href="Admin2.xxm[[?'i',Context['i'].AsInteger,'f',FeedID,'k',AdminKey]]">duplicate...</a>>
+   end;
+  ]]
+  <a href="Admin.xxm[[?'f',FeedID,'k',AdminKey]]">new...</a>
+  </p>
+  <form action="Admin1.xxm" method="post" id="f1">
+  <input type="hidden" name="f" value="[[=FeedID]]" />
+  <input type="hidden" name="k" value="[[=AdminKey]]" />
+  <input type="hidden" name="i" value="[[=Context['i'].AsInteger]]" />
+  <p>
+  <b>>=qr['what']<</b><br/>
+  <input type="text" name="name" value="[[=qr['name']]]" style="width:100%;" /><br />
+  <textarea name="data" style="width:100%;height:8em;overflow:scroll;">>=qr['data']<</textarea><br />
+  <input type="submit" value="Apply" id="s1" style="width:100%;" />
+  </p>
+  </form>
+  <script>
+  document.getElementById("f1").onsubmit=function(){
+    var s1=document.getElementById("s1");
+    s1.disabled=true;
+    s1.value="Applying...";
+  }
+  </script>>
+finally
+  qr.Free;
+end;
+
+<</body>
+</html>

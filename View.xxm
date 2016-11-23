@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<title>Another Multi User Dungeon: Administrator's View</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="info.css" rel="stylesheet" />
+</head>
+<body>
+[[@feed]][[!var
+s:UTF8String;
+i:integer;
+]][[
+
+<<div id="constate" style="position:fixed;right:4pt;top:4pt;padding:4pt;background-color:gold;">Connecting..</div>
+<div style="white-space:nowrap;">>
+for i:=0 to MaxFeeds-1 do
+ begin
+  try
+    if AMUDData[i]=nil then s:='' else
+     begin
+      s:=Format('%d %d %s',[AMUDData[i].Info.PersonID,AMUDData[i].Info.RoomID,AMUDData[i].LastTx]);
+      AMUDData[i].LastTx1:=AMUDData[i].LastTx;
+     end;
+  except
+    on e:Exception do s:='!!!['+e.ClassName+']'+e.Message;
+  end;
+  <<div id="f[[=Format('%.4d',[i])]]" title="[[=i]]">>=UTF8Decode(s)<</div>
+  [[
+ end;
+
+<</div>
+<script>
+var constate=document.getElementById("constate");
+var feed=new WebSocket(function(){
+  var x=document.location.href.split("/");
+  x[0]="ws:";
+  x[4]="view";
+  return x.join("/");
+}());
+feed.onopen=function(){
+  constate.textContent="";
+};
+feed.onerror=function(e){
+  constate.textContent=e;
+};
+feed.onclose=function(e){
+  constate.textContent="Connection lost";
+};
+feed.onmessage=function(x){
+  document.getElementById("f"+x.data.substr(0,4)).textContent=x.data.substr(4);
+};
+</script>
+</body>
+</html>

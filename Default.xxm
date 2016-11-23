@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<title>Another Multi User Dungeon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="amud.css" rel="stylesheet" />
+</head>
+<body>
+<div id="title">Another Multi User Dungeon</div>
+<div id="constate">Loading...</div>
+<div id="msg"></div>
+<div id="inventory"></div>
+<div id="room"></div>
+<div id="things"></div>
+<div id="persons"></div>
+<br /><br /><br />
+<div id="prompt"><input type="text" id="prompt1" /></div>
+<script src="amud.js">Script is not enabled.</script>
+</body>
+</html>
