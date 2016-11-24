@@ -324,7 +324,7 @@ begin
         t:=Split(Copy(Data,2,Length(Data)-1),',');
         i:=StrToInt(t[0]);
         if (Length(t)=1) or (t[1]='') then j:=0 else j:=StrToInt(t[1]);
-        SendText('a'+ss(i)+Info.ListActions(i,j));
+        SendText('a'+ss(i)+Info.ListActions(j,i));
        end;
       's'://speak
        begin
@@ -355,7 +355,7 @@ begin
         end;
       'p'://perform action
         try
-          t:=Split(Info.DoAction(Copy(Data,2,Length(Data)-1),id,id1),#10);
+          t:=Split(Info.DoAction(Copy(Data,2,Length(Data)-1),id1,id),#10);
           for i:=0 to Length(t)-1 do
            begin
             s:=Copy(t[i],2,Length(t[i])-1);

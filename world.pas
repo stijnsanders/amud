@@ -10,12 +10,12 @@ const
 type
   TUserInfo=class;//forward
 
-  TCmdHandler=function(AgentID,ThingID:integer):UTF8String of object;
+  TCmdHandler=function(ThingID,SubjectID:integer):UTF8String of object;
 
   TUserInfo=class(TObject)
   private
     FCmd:array of record
-      AgentID,ThingID:integer;
+      ThingID,SubjectID:integer;
       Cmd:UTF8String;
       Handler:TCmdHandler;
     end;
@@ -25,22 +25,22 @@ type
     function qName(ThingID:integer):UTF8String;
     function qData(ThingID:integer):IJSONDocument;
   protected
-    function TakeThing(AgentID,ThingID:integer):UTF8String;
-    function DropThing(AgentID,ThingID:integer):UTF8String;
-    function TrashThing(AgentID,ThingID:integer):UTF8String;
-    function GiveThing(AgentID,ThingID:integer):UTF8String;
-    function AdminEdit(AgentID,ThingID:integer):UTF8String;
-    function TakeMoney(AgentID,ThingID:integer):UTF8String;
-    function DropMoney(AgentID,ThingID:integer):UTF8String;
-    function GiveMoney(AgentID,ThingID:integer):UTF8String;
-    function Bed_LieDown(AgentID,ThingID:integer):UTF8String;
-    function Door_Go(AgentID,ThingID:integer):UTF8String;
-    function Leaflet_Read(AgentID,ThingID:integer):UTF8String;
-    function RoomMaker_MakeRoom(AgentID,ThingID:integer):UTF8String;
-    function LockMaker_LockDoor(AgentID,ThingID:integer):UTF8String;
-    function LockMaker_DuplicateKey(AgentID,ThingID:integer):UTF8String;
-    function NoteBloc_WriteNote(AgentID,ThingID:integer):UTF8String;
-    function PowerTool_OnOff(AgentID,ThingID:integer):UTF8String;
+    function TakeThing(ThingID,SubjectID:integer):UTF8String;
+    function DropThing(ThingID,SubjectID:integer):UTF8String;
+    function TrashThing(ThingID,SubjectID:integer):UTF8String;
+    function GiveThing(ThingID,SubjectID:integer):UTF8String;
+    function AdminEdit(ThingID,SubjectID:integer):UTF8String;
+    function TakeMoney(ThingID,SubjectID:integer):UTF8String;
+    function DropMoney(ThingID,SubjectID:integer):UTF8String;
+    function GiveMoney(ThingID,SubjectID:integer):UTF8String;
+    function Bed_LieDown(ThingID,SubjectID:integer):UTF8String;
+    function Door_Go(ThingID,SubjectID:integer):UTF8String;
+    function Leaflet_Read(ThingID,SubjectID:integer):UTF8String;
+    function RoomMaker_MakeRoom(ThingID,SubjectID:integer):UTF8String;
+    function LockMaker_LockDoor(ThingID,SubjectID:integer):UTF8String;
+    function LockMaker_DuplicateKey(ThingID,SubjectID:integer):UTF8String;
+    function NoteBloc_WriteNote(ThingID,SubjectID:integer):UTF8String;
+    function PowerTool_OnOff(ThingID,SubjectID:integer):UTF8String;
   public
     FeedID,PersonID,RoomID:integer;
     LastTalk:UTF8String;
@@ -48,9 +48,9 @@ type
     function UserWelcomeRoom:integer;
     function ListCommands(ThingID:integer):UTF8String;
     function DoCommand(const Cmd:UTF8String;SubjectID:integer;var ThingID:integer):UTF8String;
-    function ListActions(AgentID,ThingID:integer):UTF8String;
+    function ListActions(ThingID,SubjectID:integer):UTF8String;
     function DoAction(const Cmd:UTF8String;
-      var AgentID,ThingID:integer):UTF8String;
+      var ThingID,SubjectID:integer):UTF8String;
     procedure ClearCommands;
   end;
 
@@ -196,8 +196,8 @@ var
     c:integer;
   begin
     c:=NewCmd;
-    FCmd[c].AgentID:=0;
     FCmd[c].ThingID:=ThingID;
+    FCmd[c].SubjectID:=0;
     FCmd[c].Cmd:=IntToStr(ThingID)+Cmd;
     FCmd[c].Handler:=Handler;
     Result:=Result+#$60+Cmd;
@@ -287,14 +287,14 @@ begin
   else
    begin
     ThingID:=FCmd[c].ThingID;
-    //assert FCmd[c].AgentID=0
+    //assert FCmd[c].SubjectID=0
     b:=FConfirm;
-    Result:=FCmd[c].Handler(SubjectID,ThingID);
+    Result:=FCmd[c].Handler(ThingID,SubjectID);
     if b then FConfirm:=false;
    end;
 end;
 
-function TUserInfo.ListActions(AgentID, ThingID: integer): UTF8String;
+function TUserInfo.ListActions(ThingID,SubjectID:integer): UTF8String;
 var
   qr:TQueryResult;
   d:IJSONDocument;
@@ -307,9 +307,9 @@ var
     c:integer;
   begin
     c:=NewCmd;
-    FCmd[c].AgentID:=AgentID;
     FCmd[c].ThingID:=ThingID;
-    FCmd[c].Cmd:=IntToStr(AgentID)+Cmd+IntToStr(ThingID);
+    FCmd[c].SubjectID:=SubjectID;
+    FCmd[c].Cmd:=IntToStr(SubjectID)+Cmd+IntToStr(ThingID);
     FCmd[c].Handler:=Handler;
     Result:=Result+#$60+Cmd+#$60+IntToStr(ThingID);
   end;
@@ -331,13 +331,13 @@ begin
       'm':
         if what='money' then
           if ParentID=PersonID then //TODO: cascading!
-            if AgentID<>PersonID then
+            if SubjectID<>PersonID then
               AddCmd('give',GiveMoney);
       else DefaultThing:=true;
     end;
     if DefaultThing then
       if ParentID=PersonID then //TODO: cascading!
-        if AgentID<>PersonID then
+        if SubjectID<>PersonID then
           AddCmd('give',GiveThing);
   finally
     qr.Free;
@@ -345,7 +345,7 @@ begin
 end;
 
 function TUserInfo.DoAction(const Cmd:UTF8String;
-  var AgentID,ThingID:integer): UTF8String;
+  var ThingID,SubjectID:integer): UTF8String;
 var
   c:integer;
   b:boolean;
@@ -356,10 +356,10 @@ begin
     raise Exception.Create('Unknown command "'+Cmd+'"')
   else
    begin
-    AgentID:=FCmd[c].AgentID;
     ThingID:=FCmd[c].ThingID;
+    SubjectID:=FCmd[c].SubjectID;
     b:=FConfirm;
-    Result:=FCmd[c].Handler(AgentID,ThingID);
+    Result:=FCmd[c].Handler(ThingID,SubjectID);
     if b then FConfirm:=false;
    end;
 end;
@@ -388,7 +388,7 @@ begin
   end;
 end;
 
-function TUserInfo.TakeThing(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.TakeThing(ThingID,SubjectID:integer):UTF8String;
 begin
   //TODO: checks?
   DBCon.BeginTrans;
@@ -402,7 +402,7 @@ begin
   Result:='*t-'+ss(ThingID)+qx(ThingID,#10'.i+');
 end;
 
-function TUserInfo.DropThing(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.DropThing(ThingID,SubjectID:integer):UTF8String;
 begin
   //TODO: checks?
   DBCon.BeginTrans;
@@ -416,7 +416,7 @@ begin
   Result:='.i-'+ss(ThingID)+qx(ThingID,#10'*t+');
 end;
 
-function TUserInfo.TrashThing(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.TrashThing(ThingID,SubjectID:integer):UTF8String;
 begin
   //TODO: checks? confirm y/n? undo?
   if FConfirm then
@@ -440,12 +440,12 @@ begin
   //+#10'*t-'+ss(ThingID);//which?
 end;
 
-function TUserInfo.GiveThing(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.GiveThing(ThingID,SubjectID:integer):UTF8String;
 begin
   //TODO: checks?
   DBCon.BeginTrans;
   try
-    DBCon.Execute('update Item set ParentID=? where ID=?',[AgentID,ThingID]);
+    DBCon.Execute('update Item set ParentID=? where ID=?',[SubjectID,ThingID]);
     DBCon.CommitTrans;
   except
     DBCon.RollbackTrans;
@@ -454,14 +454,14 @@ begin
   Result:='.i-'+ss(ThingID)+qx(ThingID,#10'!i+');
 end;
 
-function TUserInfo.AdminEdit(AgentID, ThingID: integer): UTF8String;
+function TUserInfo.AdminEdit(ThingID,SubjectID:integer): UTF8String;
 begin
   if not FIsAdmin then raise Exception.Create('Access denied');
   Result:=':u'+ss(Format('Admin.xxm?i=%d&a=%d&r=%d&f=%d&k=%s',
-    [ThingID,AgentID,RoomID,FeedID,AMUDData[FeedID].NewKey]));
+    [ThingID,SubjectID,RoomID,FeedID,AMUDData[FeedID].NewKey]));
 end;
 
-function TUserInfo.TakeMoney(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.TakeMoney(ThingID,SubjectID:integer):UTF8String;
 var
   WalletID,i,l,m1,m2:integer;
   qr:TQueryResult;
@@ -517,7 +517,7 @@ begin
   end;
 end;
 
-function TUserInfo.DropMoney(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.DropMoney(ThingID,SubjectID:integer):UTF8String;
 var
   i,l,m1,m2:integer;
   s:UTF8String;
@@ -569,7 +569,7 @@ begin
     Result:=':m'+ss(ThingID)+#$60'State how moch credits to drop.';
 end;
 
-function TUserInfo.GiveMoney(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.GiveMoney(ThingID,SubjectID:integer):UTF8String;
 var
   i,l,m1,m2,m3,WalletID:integer;
   s:UTF8String;
@@ -591,7 +591,7 @@ begin
        end
       else
        begin
-        qr:=TQueryResult.Create(DBCon,'select * from Item where ParentID=? and what=?',[AgentID,'money']);
+        qr:=TQueryResult.Create(DBCon,'select * from Item where ParentID=? and what=?',[SubjectID,'money']);
         try
           if qr.EOF then
            begin
@@ -615,7 +615,7 @@ begin
           DBCon.Execute('delete from Item where ID=?',[ThingID]);
           if WalletID=0 then
            begin
-            DBCon.Execute('update Item set ParentID=? where ID=?',[AgentID,ThingID]);
+            DBCon.Execute('update Item set ParentID=? where ID=?',[SubjectID,ThingID]);
             Result:='.i-'+ss(ThingID)+qx(ThingID,#10'!i+');
            end
           else
@@ -645,12 +645,12 @@ begin
   else
     Result:=':m'+ss(ThingID)+#$60'State how moch credits to give.';
 end;
-function TUserInfo.Bed_LieDown(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.Bed_LieDown(ThingID,SubjectID:integer):UTF8String;
 begin
   Result:='*m'+ss(ThingID)+#$60'*squeak*';
 end;
 
-function TUserInfo.Door_Go(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.Door_Go(ThingID,SubjectID:integer):UTF8String;
 var
   d1,d2:IJSONDocument;
   RoomID,i:integer;
@@ -679,12 +679,12 @@ begin
    end;
 end;
 
-function TUserInfo.Leaflet_Read(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.Leaflet_Read(ThingID,SubjectID:integer):UTF8String;
 begin
   Result:=':u'+ss(VarToStr(qData(ThingID)['url']));
 end;
 
-function TUserInfo.RoomMaker_MakeRoom(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.RoomMaker_MakeRoom(ThingID,SubjectID:integer):UTF8String;
 var
   s:UTF8Strings;
   t:UTF8String;
@@ -764,18 +764,18 @@ begin
    end;
 end;
 
-function TUserInfo.LockMaker_LockDoor(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.LockMaker_LockDoor(ThingID,SubjectID:integer):UTF8String;
 var
   qr:TQueryResult;
   d:IJSONDocument;
   s:UTF8String;
   id:integer;
 begin
-  if AgentID=0 then
+  if SubjectID=0 then
     Result:=':m'+ss(ThingID)+#$60'select a door to add a lock to'
   else
    begin
-    qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[AgentID]);
+    qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[SubjectID]);
     try
       if qr.GetStr('what')<>'door' then
         Result:=':m'+ss(ThingID)+#$60'select a door to add a lock to'
@@ -788,13 +788,13 @@ begin
          begin
           s:=RKey(40);
           d['key']:=s;
-          DBCon.Execute('update Item set data=? where ID=?',[d.ToString,AgentID]);
+          DBCon.Execute('update Item set data=? where ID=?',[d.ToString,SubjectID]);
           id:=DBCon.Insert('Item',
             ['what','key'
             ,'ParentID',PersonID
             ,'name',qr['name']
             ,'key','key:'+s
-            ,'data','{"door":'+IntToStr(AgentID)+'}'
+            ,'data','{"door":'+IntToStr(SubjectID)+'}'
             ,'createdby',PersonID
             ,'createdon',Now
             ],'ID');
@@ -807,16 +807,16 @@ begin
    end;
 end;
 
-function TUserInfo.LockMaker_DuplicateKey(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.LockMaker_DuplicateKey(ThingID,SubjectID:integer):UTF8String;
 var
   qr:TQueryResult;
   id:integer;
 begin
-  if AgentID=0 then
+  if SubjectID=0 then
     Result:=':m'+ss(ThingID)+#$60'select a key to duplicate'
   else
    begin
-    qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[AgentID]);
+    qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[SubjectID]);
     try
       if qr.GetStr('what')<>'key' then
         Result:=':m'+ss(ThingID)+#$60'select a key to duplicate'
@@ -839,7 +839,7 @@ begin
    end;
 end;
 
-function TUserInfo.NoteBloc_WriteNote(AgentID,ThingID:integer):UTF8String;
+function TUserInfo.NoteBloc_WriteNote(ThingID,SubjectID:integer):UTF8String;
 var
   id,left:integer;
   d:IJSONDocument;
@@ -884,7 +884,7 @@ begin
    end;
 end;
 
-function TUserInfo.PowerTool_OnOff(AgentID, ThingID: integer): UTF8String;
+function TUserInfo.PowerTool_OnOff(ThingID,SubjectID:integer): UTF8String;
 const
   msg:array[boolean] of UTF8String=('off','on');
 begin
