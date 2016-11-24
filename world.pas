@@ -37,6 +37,8 @@ type
     function Door_Go(AgentID,ThingID:integer):UTF8String;
     function Leaflet_Read(AgentID,ThingID:integer):UTF8String;
     function RoomMaker_MakeRoom(AgentID,ThingID:integer):UTF8String;
+    function LockMaker_LockDoor(AgentID,ThingID:integer):UTF8String;
+    function LockMaker_DuplicateKey(AgentID,ThingID:integer):UTF8String;
     function NoteBloc_WriteNote(AgentID,ThingID:integer):UTF8String;
     function PowerTool_OnOff(AgentID,ThingID:integer):UTF8String;
   public
@@ -45,7 +47,7 @@ type
     constructor Create;
     function UserWelcomeRoom:integer;
     function ListCommands(ThingID:integer):UTF8String;
-    function DoCommand(const Cmd:UTF8String;var ThingID:integer):UTF8String;
+    function DoCommand(const Cmd:UTF8String;SubjectID:integer;var ThingID:integer):UTF8String;
     function ListActions(AgentID,ThingID:integer):UTF8String;
     function DoAction(const Cmd:UTF8String;
       var AgentID,ThingID:integer):UTF8String;
@@ -240,6 +242,13 @@ begin
       'p':
         if what='passage' then AddCmd('go',Door_Go)
         else DefaultThing:=true;
+      'L':
+        if what='LockMaker' then
+         begin
+          AddCmd('add lock',LockMaker_LockDoor);
+          AddCmd('duplicate key',LockMaker_DuplicateKey);
+         end
+        else DefaultThing:=true;
       'N':
         if what='NoteBloc' then AddCmd('write a note',NoteBloc_WriteNote)
         else DefaultThing:=true;
@@ -266,7 +275,7 @@ begin
   end;
 end;
 
-function TUserInfo.DoCommand(const Cmd:UTF8String;var ThingID:integer):UTF8String;
+function TUserInfo.DoCommand(const Cmd:UTF8String;SubjectID:integer;var ThingID:integer):UTF8String;
 var
   c:integer;
   b:boolean;
@@ -278,8 +287,9 @@ begin
   else
    begin
     ThingID:=FCmd[c].ThingID;
+    //assert FCmd[c].AgentID=0
     b:=FConfirm;
-    Result:=FCmd[c].Handler(FCmd[c].AgentID,ThingID);
+    Result:=FCmd[c].Handler(SubjectID,ThingID);
     if b then FConfirm:=false;
    end;
 end;
@@ -652,8 +662,8 @@ begin
   if not(VarIsNull(d1['key'])) then
    begin
     //TODO: cascaded
-    qr:=TQueryResult.Create(DBCon,'select ID from Thing where ParentID=? and what=? and key=?',
-      [Info.PersonID,'key',d1['key']]);
+    qr:=TQueryResult.Create(DBCon,'select ID from Item where ParentID=? and what=? and key=?',
+      [PersonID,'key','key:'+d1['key']]);
     try
       if qr.EOF then Result:=':m'+ss(ThingID)+#$60'Door is locked, you don''t have the key.';
     finally
@@ -751,6 +761,81 @@ begin
       Result:=Result+#10':m'+ss(ThingID)+ss(left)+' rooms left'
     else if left=1 then
       Result:=Result+#10':m'+ss(ThingID)+#$60'1 room left!';
+   end;
+end;
+
+function TUserInfo.LockMaker_LockDoor(AgentID,ThingID:integer):UTF8String;
+var
+  qr:TQueryResult;
+  d:IJSONDocument;
+  s:UTF8String;
+  id:integer;
+begin
+  if AgentID=0 then
+    Result:=':m'+ss(ThingID)+#$60'select a door to add a lock to'
+  else
+   begin
+    qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[AgentID]);
+    try
+      if qr.GetStr('what')<>'door' then
+        Result:=':m'+ss(ThingID)+#$60'select a door to add a lock to'
+      else
+       begin
+        d:=JSON.Parse(qr.GetStr('data'));
+        if not(VarIsNull(d['key'])) then
+          Result:=':m'+ss(ThingID)+#$60'door already has a lock'
+        else
+         begin
+          s:=RKey(40);
+          d['key']:=s;
+          DBCon.Execute('update Item set data=? where ID=?',[d.ToString,AgentID]);
+          id:=DBCon.Insert('Item',
+            ['what','key'
+            ,'ParentID',PersonID
+            ,'name',qr['name']
+            ,'key','key:'+s
+            ,'data','{"door":'+IntToStr(AgentID)+'}'
+            ,'createdby',PersonID
+            ,'createdon',Now
+            ],'ID');
+          Result:='.i+'+ss(id)+#$60'key'+ss(qr.GetStr('name'));
+         end;
+       end;
+    finally
+      qr.Free;
+    end;
+   end;
+end;
+
+function TUserInfo.LockMaker_DuplicateKey(AgentID,ThingID:integer):UTF8String;
+var
+  qr:TQueryResult;
+  id:integer;
+begin
+  if AgentID=0 then
+    Result:=':m'+ss(ThingID)+#$60'select a key to duplicate'
+  else
+   begin
+    qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[AgentID]);
+    try
+      if qr.GetStr('what')<>'key' then
+        Result:=':m'+ss(ThingID)+#$60'select a key to duplicate'
+      else
+       begin
+        id:=DBCon.Insert('Item',
+          ['what','key'
+          ,'ParentID',PersonID
+          ,'name',qr['name']
+          ,'key',qr['key']
+          ,'data',qr['data']
+          ,'createdby',PersonID
+          ,'createdon',Now
+          ],'ID');
+        Result:='.i+'+ss(id)+#$60'key'+ss(qr['name']);
+       end;
+    finally
+      qr.Free;
+    end;
    end;
 end;
 

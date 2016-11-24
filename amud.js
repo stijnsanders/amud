@@ -41,7 +41,8 @@ try{
     var d=document.getElementById("dixit"+n.parentElement.id.substr(5));//"thing"...
     if(d)d.textContent="";
     n.classList.add("hot");
-    feed.send("d"+n.id.substr(3));//"cmd..."
+    feed.send("d"+n.id.substr(3)+//"cmd..."
+      (sthing?","+sthing.parentElement.id.substr(5):""));//"thing..."
     event.preventDefault();
   }
   function actClick(event){

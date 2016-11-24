@@ -287,7 +287,7 @@ end;
 procedure TAMUDDataFeed.ReceiveText(const Data: UTF8String);
 var
   i,j,id,id1:integer;
-  s:UTF8String;
+  s,u:UTF8String;
   t:UTF8Strings;
 begin
   inherited;
@@ -334,7 +334,10 @@ begin
        end;
       'd'://do something
         try
-          t:=Split(Info.DoCommand(Copy(Data,2,Length(Data)-1),id),#10);
+          t:=Split(Copy(Data,2,Length(Data)-1),',');
+          u:=t[0];
+          if Length(t)>1 then i:=StrToInt(t[1]) else i:=0;
+          t:=Split(Info.DoCommand(u,i,id),#10);
           for i:=0 to Length(t)-1 do
            begin
             s:=Copy(t[i],2,Length(t[i])-1);
@@ -348,7 +351,7 @@ begin
             end;
            end;
         finally
-          SendText('c.'+ss(Copy(Data,2,Length(Data)-1)));//command done
+          SendText('c.'+ss(u));//command done
         end;
       'p'://perform action
         try

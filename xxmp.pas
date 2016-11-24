@@ -89,8 +89,7 @@ end;
 
 procedure TXxmamud.ReleasingContexts;
 begin
-  //
-  AMUDView.Terminate;
+  if AMUDView<>nil then AMUDView.Terminate;
   AMUDData.CloseAllFeeds;
   CloseAllDBCon;
 end;

@@ -17,5 +17,6 @@ insert into Item (name,ParentID,what,data) values ('to the rooms',(select ID fro
 
 insert into Item (name,ParentID,what,data) values ('',,'PowerTool','{}');
 insert into Item (name,ParentID,what,data) values ('',,'RoomMaker','{}');
+insert into Item (name,ParentID,what,data) values ('',,'LockMaker','{}');
 insert into Item (name,ParentID,what,data) values ('',,'NoteBloc','{left:50}');
 insert into Item (name,ParentID,what,data) values ('2000000000 credits',,'money','{}');
