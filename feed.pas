@@ -433,7 +433,7 @@ begin
   //inventory
   qr:=TQueryResult.Create(DBCon,'select * from Item where ParentID=?',[Info.PersonID]);
   try
-    while qr.Read do SendText(ix(qr,'i+'));
+    while qr.Read do SendText(ix('i+',qr));
   finally
     qr.Free;
   end;
@@ -450,14 +450,14 @@ var
 begin
   //notify others leaving
   if Info.RoomID<>0 then
-    AMUDData.SendToRoom(Info.RoomID,qx(Info.PersonID,'r-')+qx(ADoorID,''));
-  s:=qx(Info.PersonID,'r+');
-  t:=qx(ARoomID,'r');
+    AMUDData.SendToRoom(Info.RoomID,qx('r-',Info.PersonID)+qx('',ADoorID));
+  s:=qx('r+',Info.PersonID);
+  t:=qx('r',ARoomID);
   LastRoom:=s+' | '+t;
   LastTx:=FormatDateTime('hh:nn:ss.zzz | ',Now)+LastRoom;
 
   //notify new room
-  s:=s+qx(Info.RoomID,'');
+  s:=s+qx('',Info.RoomID);
   Info.RoomID:=ARoomID;
   Info.LastTalk:='';
 
@@ -465,7 +465,7 @@ begin
   qr:=TQueryResult.Create(DBCon,'select * from Item where ParentID=?',[ARoomID]);
   //TODO: orderby, minlevel...
   try
-    while qr.Read do t:=t+ix(qr,#$60't');
+    while qr.Read do t:=t+ix(#$60't',qr);
   finally
     qr.Free;
   end;
@@ -480,7 +480,7 @@ begin
       try
         AMUDData.FFeeds[i].SendText(s);//'r+'
         if Self<>AMUDData.FFeeds[i] then
-          SendText(qx(AMUDData.FFeeds[i].Info.PersonID,'r+'));
+          SendText(qx('r+',AMUDData.FFeeds[i].Info.PersonID));
       except
         //silent
       end;

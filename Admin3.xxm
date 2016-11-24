@@ -1,0 +1,39 @@
+[[@DataLank,feed,jsonDoc,tools]][[!var
+FeedID,ItemID,ParentID:integer;
+AdminKey:UTF8String;
+]][[
+FeedID:=Context['f'].AsInteger;
+AdminKey:=AMUDData[FeedID].CheckKey(Context['k'].Value);
+
+ItemID:=Context['i'].AsInteger;
+ParentID:=Context['p'].AsInteger;
+
+DBCon.BeginTrans;
+try
+  DBCon.Execute('update Item set ParentID=? where ID=?',[ParentID,ItemID]);
+  DBCon.CommitTrans;
+except
+  DBCon.RollbackTrans;
+  raise;
+end;
+
+if ParentID=AMUDData[FeedID].Info.PersonID then
+ begin
+  AMUDData.SendToRoom(AMUDData[FeedID].Info.RoomID,'t-'+ss(ItemID));
+  AMUDData.SendToPerson(AMUDData[FeedID].Info.PersonID,qx('i+',ItemID));
+ end
+else
+if ParentID=AMUDData[FeedID].Info.RoomID then
+ begin
+  AMUDData.SendToPerson(AMUDData[FeedID].Info.PersonID,'i-'+ss(ItemID));
+  AMUDData.SendToRoom(AMUDData[FeedID].Info.RoomID,qx('t+',ItemID));
+ end
+else
+ begin
+  <<p><b style="color:red;">Suspicious move</b></p>>
+  //raise? more checks up front?
+ end;
+
+<<!doctype html>
+<link href="info.css" rel="stylesheet" />
+<p><b>Moved!</b></p>

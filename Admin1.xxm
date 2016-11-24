@@ -32,8 +32,10 @@ except
 end;
 
 if ParentID=AMUDData[FeedID].Info.PersonID then
-  AMUDData[FeedID].SendText(qx(ItemID,'ii'))
+  AMUDData[FeedID].SendText(qx('ii',ItemID))
 else
-  AMUDData.SendToRoom(ParentID,qx(ItemID,'ii'));
+  AMUDData.SendToRoom(ParentID,qx('ii',ItemID));
 
-<<p><b>Updated!</b></p>
+<<!doctype html>
+<link href="info.css" rel="stylesheet" />
+<p><b>Updated!</b></p>

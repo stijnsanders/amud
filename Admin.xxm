@@ -29,6 +29,15 @@ try
    begin
     ]] <a href="Admin2.xxm[[?'i',Context['i'].AsInteger,'f',FeedID,'k',AdminKey]]">duplicate...</a>>
    end;
+  if qr.GetInt('ParentID')=AMUDData[FeedID].Info.PersonID then //TODO: cascading
+   begin
+    ]] <a href="Admin3.xxm[[?'i',Context['i'].AsInteger,'p',AMUDData[FeedID].Info.RoomID,'f',FeedID,'k',AdminKey]]">force drop...</a>>
+   end
+  else
+  if qr.GetInt('ParentID')=AMUDData[FeedID].Info.RoomID then
+   begin
+    ]] <a href="Admin3.xxm[[?'i',Context['i'].AsInteger,'p',AMUDData[FeedID].Info.PersonID,'f',FeedID,'k',AdminKey]]">force take...</a>>
+   end;
   ]]
   <a href="Admin.xxm[[?'f',FeedID,'k',AdminKey]]">new...</a>
   </p>
@@ -38,8 +47,8 @@ try
   <input type="hidden" name="i" value="[[=Context['i'].AsInteger]]" />
   <p>
   <b>>=qr['what']<</b><br/>
-  <input type="text" name="name" value="[[=qr['name']]]" style="width:100%;" /><br />
-  <textarea name="data" style="width:100%;height:8em;overflow:scroll;">>=qr['data']<</textarea><br />
+  <input type="text" name="name" value="[[.name]]]" style="width:100%;" /><br />
+  <textarea name="data" style="width:100%;height:8em;overflow:scroll;">>.data<</textarea><br />
   <input type="submit" value="Apply" id="s1" style="width:100%;" />
   </p>
   </form>

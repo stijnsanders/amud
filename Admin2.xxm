@@ -36,4 +36,6 @@ except
 end;
 AMUDData.SendToRoom(ParentID,s);
 
-<<p><b>Duplicated!</b></p>
+<<!doctype html>
+<link href="info.css" rel="stylesheet" />
+<p><b>Duplicated!</b></p>

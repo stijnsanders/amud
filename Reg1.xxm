@@ -1,0 +1,65 @@
+[[@DataLank,feed,jsonDoc,tools]][[!var
+FeedID,PersonID:integer;
+AdminKey,s:UTF8String;
+qr:TQueryResult;
+]][[
+FeedID:=Context['f'].AsInteger;
+AdminKey:=AMUDData[FeedID].CheckKey(Context['k'].Value);
+
+PersonID:=AMUDData[FeedID].Info.PersonID;
+
+s:='';
+if Length(Context['name'].Value)<5 then s:='Empty display name too short (minimal 5 characters)' else //more?
+if Context['FirstName'].Value='' then s:='Empty FirstName not allowed' else
+if Context['LastName'].Value='' then s:='Empty LastName not allowed' else
+if Context['EmailAddress'].Value='' then s:='Empty EmailAddress not allowed' else
+//TODO: validate (test) e-mail address?
+;
+
+if s<>'' then
+ begin
+  <<!doctype html>
+  <link href="info.css" rel="stylesheet" />
+  <p style="color:red;">>=s<</p>
+  <p><a href="Reg.xxm[[?'f',FeedID,'k',AdminKey]]">back</a></p>>
+ end
+else
+ begin
+  DBCon.BeginTrans;
+  try
+    DBCon.Execute('update Item set name=? where ID=?',[Context['name'].Value,PersonID]);
+    qr:=TQueryResult.Create(DBCon,'select ID from User where ID=?',[PersonID]);
+    try
+      if qr.EOF then
+        DBCon.Insert('User',
+          ['ID',PersonID
+          ,'FirstName',Context['FirstName'].Value
+          ,'LastName',Context['LastName'].Value
+          ,'EmailAddress',Context['EmailAddress'].Value
+          ,'Comment',Context['Comment'].Value
+          ,'createdon',Now
+          ])
+      else
+        DBCon.Execute('update User set FirstName=?,LastName=?,EmailAddress=?,Comment=? where ID=?',
+          [Context['FirstName'].Value
+          ,Context['LastName'].Value
+          ,Context['EmailAddress'].Value
+          ,Context['Comment'].Value
+          ,PersonID
+          ]);
+    finally
+      qr.Free;
+    end;
+
+    DBCon.CommitTrans;
+  except
+    DBCon.RollbackTrans;
+    raise;
+  end;
+
+  AMUDData.SendToRoom(AMUDData[FeedID].Info.RoomID,qx('pn',PersonID));
+
+  <<!doctype html>
+  <link href="info.css" rel="stylesheet" />
+  <p><b>Thank you for your registration.</b></p>>
+ end;

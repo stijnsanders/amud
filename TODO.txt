@@ -1,15 +1,13 @@
 # AMUD ToDo
 
-admin feed: who's where
-
 city hall: registry office (get a name)
 
 bank (get an account)
-
-money (credits): fungible
 
 transporter booths:
 - Transporter object (to list of transporter booths)
 - price per transport
 
 city hall: voter booth?
+
+LockMaker: remove lock?

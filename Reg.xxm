@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<title>Another Multi User Dungeon: Citizen Registration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="info.css" rel="stylesheet" />
+</head>
+<body>
+[[@DataLank,feed,tools]][[!var
+AdminKey:UTF8String;
+FeedID:integer;
+qr:TQueryResult;
+]][[
+FeedID:=Context['f'].AsInteger;
+AdminKey:=AMUDData[FeedID].CheckKey(Context['k'].Value);
+
+qr:=TQueryResult.Create(DBCon,'select Item.name, User.* from Item'+
+  ' left outer join User on User.ID=Item.ID where Item.ID=?',
+  [AMUDData[FeedID].Info.PersonID]);
+try
+
+  <<form action="Reg1.xxm" method="post" id="f1">
+  <input type="hidden" name="f" value="[[=FeedID]]" />
+  <input type="hidden" name="k" value="[[=AdminKey]]" />
+  <p>
+  <b>Display name</b><br />
+  <input type="text" name="name" value="[[.name]]" style="width:100%;" id="n1" /><br />
+  <b>First name (not shown in game)</b><br />
+  <input type="text" name="FirstName" value="[[.FirstName]]" style="width:100%;" /><br />
+  <b>Last name (not shown in game)</b><br />
+  <input type="text" name="LastName" value="[[.LastName]]" style="width:100%;" /><br />
+  <b>E-mail address (not shown in game)</b><br />
+  <input type="text" name="EmailAddress" value="[[.EmailAddress]]" style="width:100%;" /><br />
+  <b>Comment</b><br />
+  <textarea name="Comment" style="width:100%;height:8em;overflow:scroll;">>.Comment<</textarea><br />
+  <input type="submit" value="Submit" id="s1" style="width:50%;" />
+  </p>
+  </form>
+  <script>
+  var n=document.getElementById("n1");
+  n.select();
+  n.focus();
+  document.getElementById("f1").onsubmit=function(){
+    var s1=document.getElementById("s1");
+    s1.disabled=true;
+    s1.value="Submitting...";
+  }
+  </script>>
+
+finally
+  qr.Free;
+end;
+
+
+<</body>
+</html>

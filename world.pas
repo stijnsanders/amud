@@ -41,6 +41,7 @@ type
     function LockMaker_DuplicateKey(ThingID,SubjectID:integer):UTF8String;
     function NoteBloc_WriteNote(ThingID,SubjectID:integer):UTF8String;
     function PowerTool_OnOff(ThingID,SubjectID:integer):UTF8String;
+    function Form_Fill(ThingID,SubjectID:integer):UTF8String;
   public
     FeedID,PersonID,RoomID:integer;
     LastTalk:UTF8String;
@@ -219,6 +220,9 @@ begin
         else DefaultThing:=true;
       'd':
         if what='door' then AddCmd('go',Door_Go)
+        else DefaultThing:=true;
+      'f':
+        if what='form' then AddCmd('fill',Form_Fill)
         else DefaultThing:=true;
       'l':
         if what='leaflet' then
@@ -399,7 +403,7 @@ begin
     DBCon.RollbackTrans;
     raise;
   end;
-  Result:='*t-'+ss(ThingID)+qx(ThingID,#10'.i+');
+  Result:='*t-'+ss(ThingID)+qx(#10'.i+',ThingID);
 end;
 
 function TUserInfo.DropThing(ThingID,SubjectID:integer):UTF8String;
@@ -413,7 +417,7 @@ begin
     DBCon.RollbackTrans;
     raise;
   end;
-  Result:='.i-'+ss(ThingID)+qx(ThingID,#10'*t+');
+  Result:='.i-'+ss(ThingID)+qx(#10'*t+',ThingID);
 end;
 
 function TUserInfo.TrashThing(ThingID,SubjectID:integer):UTF8String;
@@ -451,7 +455,7 @@ begin
     DBCon.RollbackTrans;
     raise;
   end;
-  Result:='.i-'+ss(ThingID)+qx(ThingID,#10'!i+');
+  Result:='.i-'+ss(ThingID)+qx(#10'!i+',ThingID);
 end;
 
 function TUserInfo.AdminEdit(ThingID,SubjectID:integer): UTF8String;
@@ -501,14 +505,14 @@ begin
     if WalletID=0 then
      begin
       DBCon.Execute('update Item set ParentID=? where ID=?',[PersonID,ThingID]);
-      Result:='*t-'+ss(ThingID)+qx(ThingID,#10'.i+');
+      Result:='*t-'+ss(ThingID)+qx(#10'.i+',ThingID);
      end
     else
      begin
       s:=IntToStr(m1+m2)+' credits';
       DBCon.Execute('update Item set name=? where ID=?',[UTF8Decode(s),WalletID]);
       DBCon.Execute('delete from Item where ID=?',[ThingID]);
-      Result:='*t-'+ss(ThingID)+#10'.ii'+ss(WalletID)+#$60'money'+ss(s);//+qx(WalletID,#10':ii');
+      Result:='*t-'+ss(ThingID)+#10'.ii'+ss(WalletID)+#$60'money'+ss(s);//+qx(#10':ii',WalletID);
      end;
     DBCon.CommitTrans;
   except
@@ -540,14 +544,14 @@ begin
       else if m2=m1 then
        begin
         DBCon.Execute('update Item set ParentID=? where ID=?',[RoomID,ThingID]);
-        Result:='.i-'+ss(ThingID)+qx(ThingID,#10'*t+');
+        Result:='.i-'+ss(ThingID)+qx(#10'*t+',ThingID);
        end
       else
        begin
         m2:=m2-m1;
         if m2=1 then s:='1 credit' else s:=IntToStr(m2)+' credits';
         DBCon.Execute('update Item set name=? where ID=?',[UTF8Decode(s),ThingID]);
-        Result:='.ii'+ss(ThingID)+#$60'money'+ss(s);//qx(ThingID,'.ii')
+        Result:='.ii'+ss(ThingID)+#$60'money'+ss(s);//qx('.ii',ThingID)
         if m1=1 then s:='1 credit' else s:=IntToStr(m1)+' credits';
         i:=DBCon.Insert('Item',
           ['what','money'
@@ -557,7 +561,7 @@ begin
           ,'createdon',Now
           ,'createdby',PersonID
           ],'ID');
-        Result:=Result+#10'*t+'+ss(i)+#$60'money'+ss(s);//+qx(i,#10'*t+');
+        Result:=Result+#10'*t+'+ss(i)+#$60'money'+ss(s);//+qx(#10'*t+',i);
        end;
       DBCon.CommitTrans;
     except
@@ -616,13 +620,13 @@ begin
           if WalletID=0 then
            begin
             DBCon.Execute('update Item set ParentID=? where ID=?',[SubjectID,ThingID]);
-            Result:='.i-'+ss(ThingID)+qx(ThingID,#10'!i+');
+            Result:='.i-'+ss(ThingID)+qx(#10'!i+',ThingID);
            end
           else
            begin
             s:=IntToStr(m3+m1)+' credits';
             DBCon.Execute('update Item set name=? where ID=?',[UTF8Decode(s),WalletID]);
-            Result:='.i-'+ss(ThingID)+#10'!ii'+ss(WalletID)+#$60'money'+ss(s);//+qx(WalletID,#10'!ii');
+            Result:='.i-'+ss(ThingID)+#10'!ii'+ss(WalletID)+#$60'money'+ss(s);//+qx(#10'!ii',WalletID);
            end
          end
         else
@@ -630,10 +634,10 @@ begin
           m2:=m2-m1;
           if m2=1 then s:='1 credit' else s:=IntToStr(m2)+' credits';
           DBCon.Execute('update Item set name=? where ID=?',[UTF8Decode(s),ThingID]);
-          Result:='.ii'+ss(ThingID)+#$60'money'+ss(s);//qx(ThingID,'.ii')
+          Result:='.ii'+ss(ThingID)+#$60'money'+ss(s);//qx('.ii',ThingID)
           s:=IntToStr(m3+m1)+' credits';
           DBCon.Execute('update Item set name=? where ID=?',[UTF8Decode(s),WalletID]);
-          Result:=Result+#10'!ii'+ss(WalletID)+#$60'money'+ss(s);//+qx(WalletID,#10'!ii');
+          Result:=Result+#10'!ii'+ss(WalletID)+#$60'money'+ss(s);//+qx(#10'!ii',WalletID);
          end;
        end;
       DBCon.CommitTrans;
@@ -890,6 +894,15 @@ const
 begin
   FIsAdmin:=not(FIsAdmin);//log? check?
   Result:=':m'+ss(ThingID)+ss(msg[FIsAdmin]);
+end;
+
+function TUserInfo.Form_Fill(ThingID,SubjectID:integer):UTF8String;
+begin
+  Result:=Format(':u'#$60'%s.xxm?i=%d&p=%d&r=%d&f=%d&k=%s',
+    [VarToStr(qData(ThingID)['form'])
+    ,ThingID//,SubjectID
+    ,AMUDData[FeedID].Info.PersonID
+    ,RoomID,FeedID,AMUDData[FeedID].NewKey]);
 end;
 
 end.

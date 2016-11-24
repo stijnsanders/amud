@@ -7,8 +7,8 @@ uses SysUtils, DataLank;
 function ss(i:integer):UTF8String; overload;
 function ss(const x:UTF8String):UTF8String; overload;
 function ss(const x:WideString):UTF8String; overload;
-function ix(qr:TQueryResult;const Prefix:UTF8String):UTF8String;
-function qx(id:integer;const Prefix:UTF8String):UTF8String;
+function ix(const Prefix:UTF8String;qr:TQueryResult):UTF8String;
+function qx(const Prefix:UTF8String;id:integer):UTF8String;
 function nx(id:integer;const Key:UTF8String):boolean;
 
 type
@@ -44,7 +44,7 @@ begin
     if Result[i]=#$60 then Result[i]:=#$27;
 end;
 
-function ix(qr:TQueryResult;const Prefix:UTF8String):UTF8String;
+function ix(const Prefix:UTF8String;qr:TQueryResult):UTF8String;
 begin
   Result:=Prefix
     +ss(qr.GetInt('ID'))
@@ -55,13 +55,13 @@ begin
   //TODO: more?
 end;
 
-function qx(id:integer;const Prefix:UTF8String):UTF8String;
+function qx(const Prefix:UTF8String;id:integer):UTF8String;
 var
   qr:TQueryResult;
 begin
   qr:=TQueryResult.Create(DBCon,'select * from Item where ID=?',[id]);
   try
-    Result:=ix(qr,Prefix);
+    Result:=ix(Prefix,qr);
   finally
     qr.Free;
   end;

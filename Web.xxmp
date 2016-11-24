@@ -26,6 +26,21 @@
 			"path": "View.xxm",
 			"unitName": "view_xxm1",
 			"unitPath": ""
+		},
+		"admin3_xxm": {
+			"path": "Admin3.xxm",
+			"unitName": "admin3_xxm1",
+			"unitPath": ""
+		},
+		"reg_xxm": {
+			"path": "Reg.xxm",
+			"unitName": "reg_xxm1",
+			"unitPath": ""
+		},
+		"reg1_xxm": {
+			"path": "Reg1.xxm",
+			"unitName": "reg1_xxm1",
+			"unitPath": ""
 		}
 	},
 	"units": {
@@ -40,6 +55,10 @@
 	"resources": {
 		"xxmp.pas": {}
 	},
-	"lastModified": "2016-11-19T19:50:12",
-	"uuid": "{1D52F3C6-4C72-47E6-89EC-978580BA8C00}"
+	"lastModified": "2016-11-24T21:29:46",
+	"uuid": "{1D52F3C6-4C72-47E6-89EC-978580BA8C00}",
+	"parserValues": {
+		"Extra3Open": "Context.SendHTML(qr['",
+		"Extra3Close": "']);"
+	}
 }

@@ -234,6 +234,25 @@ try{
           window.setTimeout(function(){d.style.animation="";},1000);
         }
       },
+      "pn":function(){//person update
+        var n=document.getElementById("person"+x[1]);
+        if(n){
+          var d=n.children[0];
+          d.title=x[2];
+          d.textContent=x[3];
+        }
+        else{
+          n=document.createElement("DIV");
+          n.id="person"+x[1];
+          n.className="person";
+          var d=document.createElement("SPAN");
+          d.title=x[2];
+          d.textContent=x[3];
+          d.onclick=personClick1;
+          n.append(d);
+          persons.append(n);
+        }
+      },
       "c":function(){//list commands
         var n=document.getElementById("thing"+x[1]);
         n.children[0].classList.remove("hot");
