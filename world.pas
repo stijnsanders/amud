@@ -5,7 +5,7 @@ interface
 uses SysUtils, jsonDoc;
 
 const
-  AmudVersion='amud v1.0.0.1';
+  AmudVersion='amud v1.0.0.2';
 
 type
   TUserInfo=class;//forward

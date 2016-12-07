@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans:400,400i,700');
 
-BODY{font-family:'Josefin Sans',Verdana,sans-serif;font-size:14pt;background-color:white;color:black;}
+BODY{font-family:'Josefin Sans',Verdana,sans-serif;font-size:16pt;background-color:white;color:black;}
 #title{border-bottom:2px solid gold;font-weight:bold;padding-left:2em;text-indent:-2em;}
 #constate{position:absolute;right:4pt;top:4pt;padding:4pt;background-color:gold;}
 #msg{border-bottom:1px solid silver;color:red;padding-left:2em;text-indent:-2em;}
@@ -9,7 +9,7 @@ BODY{font-family:'Josefin Sans',Verdana,sans-serif;font-size:14pt;background-col
 #things{border-bottom:1px solid blue;padding-left:2em;text-indent:-2em;}
 #persons{border-bottom:1px solid gold;padding-left:2em;text-indent:-2em;}
 #prompt{position:fixed;left:0pt;bottom:0pt;width:100vw;margin:0px;padding:0px;}
-#prompt1{outline:none;border:0px;padding:4pt;width:100vw;font-family:'Josefin Sans',Verdana,sans-serif;font-size:14pt;background-color:silver;font-weight:bold;}
+#prompt1{outline:none;border:0px;padding:4pt;width:100vw;font-family:'Josefin Sans',Verdana,sans-serif;font-size:16pt;background-color:silver;font-weight:bold;}
 .link{color:blue;text-decoration:underline;cursor:pointer;}
 .thing{cursor:pointer;}
 .person{cursor:pointer;}

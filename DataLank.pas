@@ -23,7 +23,7 @@ type
   TQueryResult = TSQLiteStatement;
 
 var
-  DBConPath,LogPath:string;
+  DBConPath,LogPath,BotsPath:string;
 
 threadvar
   DBCon: TDataConnection;
@@ -36,6 +36,7 @@ implementation
 uses Windows, SysUtils, Classes;
 
 var
+  DBConChainLock:TRTLCriticalSection;
   DBConChain:TDataConnection;
 
 procedure GetPaths;
@@ -46,6 +47,7 @@ begin
   SetLength(s,GetModuleFileName(HInstance,PChar(s),MAX_PATH));
   DBConPath:=ChangeFileExt(s,'.db');
   LogPath:=ExtractFilePath(s)+'log\';
+  BotsPath:=ExtractFilePath(s)+'bots\';
   DBConChain:=nil;
 end;
 
@@ -54,29 +56,42 @@ begin
   if DBCon=nil then
    begin
     DBCon:=TDataConnection.Create(DBConPath);
-    //TODO: lock!
-    DBCon.FNext:=DBConChain;
-    DBConChain:=DBCon;
+    EnterCriticalSection(DBConChainLock);
+    try
+      DBCon.FNext:=DBConChain;
+      DBConChain:=DBCon;
+    finally
+      LeaveCriticalSection(DBConChainLock);
+    end;
    end;
   //else check state,transaction?
 end;
 
 procedure CloseAllDBCon;
 var
-  c:TDataConnection;
+  c,d:TDataConnection;
 begin
-  c:=DBConChain;
-  while c<>nil do
-   begin
-    try
-      c:=c.FNext;
-      c.Free;//close? disconnect?
-    except
-      //silent
-    end;
-   end;
+  EnterCriticalSection(DBConChainLock);
+  try
+    c:=DBConChain;
+    while c<>nil do
+     begin
+      try
+        d:=c;
+        c:=c.FNext;
+        d.Free;//close? disconnect?
+      except
+        //silent
+      end;
+     end;
+  finally
+    LeaveCriticalSection(DBConChainLock);
+  end;
 end;
 
 initialization
+  InitializeCriticalSection(DBConChainLock);
   GetPaths;
+finalization
+  DeleteCriticalSection(DBConChainLock);
 end.

@@ -1,0 +1,41 @@
+pre: i'm i am
+key: hello 0
+	pat: *
+		a: How do you do?
+		a: How can I be of service?
+		a: A good day to you too.
+key: bye 0
+	pat: *
+		a: Have a nice day.
+		a: See you next time.
+		a: Have fun.
+key: help 0
+	pat: *
+		a: Tell me what you need.
+		a: How can I help you?
+key: am 0
+	pat: * i am *
+		a: That's great.
+		a: Nice to hear.
+		a: Is that so.
+		a: Are you now.
+key: know 0
+	pat: * do you know *
+		a: I'm not sure I can answer that.
+		a: I know very little.
+		a: |150s`Let me think...|1000s`No, I'm afraid I don't know.
+key: notebloc 1
+	pat: *
+		a: I'm not sure, ask me again in a minute.
+		a: Remember to ask politely.
+		a: |800s`Here you are.|1000g`NoteBloc``{left:20}
+key: sorry 0
+	pat: *
+		a: It's okay.
+		a: Don't worry.
+key: room 0
+	pat: *
+		a: Booking is a bit of a mess for the moment.
+		a: I'm not sure.
+		a: That depends.
+		a: Please feel free to have a look around.

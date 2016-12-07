@@ -34,3 +34,20 @@ Comment text not null,
 createdon datetime not null,
 constraint FK_User_Item foreign key (ID) references Item (ID)
 );
+
+create table Bot (
+ID integer primary key autoincrement,
+ItemID integer not null,
+RoomID integer not null,
+Script varchar(50) not null,
+constraint FK_Bot_Item foreign key (ItemID) references Item (ID),
+constraint FK_Bot_Room foreign key (RoomID) references Item (ID)
+);
+
+insert into Item(name,what,data) values ('Eliza Weisenbaum','psychotherapist','{}');
+insert into Bot(ItemID,RoomID,Script) values (,,'eliza');
+
+insert into Item (name,what,data) values ('receptionist','receptionist','{}');
+insert into Bot(ItemID,RoomID,Script) values (,,'receptionist');
+
+

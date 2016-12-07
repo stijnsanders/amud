@@ -35,7 +35,7 @@ function XxmProjectLoad(AProjectName:WideString): IXxmProject; stdcall;
 
 implementation
 
-uses xxmFReg, DataLank, feed;
+uses xxmFReg, DataLank, feed, bots;
 
 function XxmProjectLoad(AProjectName:WideString): IXxmProject;
 begin
@@ -48,6 +48,7 @@ procedure TXxmamud.AfterConstruction;
 begin
   inherited;
   AMUDData:=TAMUDData.Create;
+  AMUDBots:=TAMUDBots.Create;
 end;
 
 function TXxmamud.LoadPage(Context: IXxmContext; Address: WideString): IXxmFragment;
@@ -89,9 +90,18 @@ end;
 
 procedure TXxmamud.ReleasingContexts;
 begin
-  if AMUDView<>nil then AMUDView.Terminate;
-  AMUDData.CloseAllFeeds;
-  CloseAllDBCon;
+  try
+    if AMUDView<>nil then AMUDView.Terminate;
+    if AMUDBots<>nil then AMUDBots.Terminate;
+    AMUDData.CloseAllFeeds;
+  except
+    //silent
+  end;
+  try
+    CloseAllDBCon;
+  except
+    //silent
+  end;
 end;
 
 procedure TXxmamud.ReleasingProject;

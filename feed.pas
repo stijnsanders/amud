@@ -70,7 +70,7 @@ var
 
 implementation
 
-uses Variants, DataLank, tools;
+uses Variants, DataLank, tools, bots;
 
 { TAMUDData }
 
@@ -331,6 +331,7 @@ begin
         Info.LastTalk:=Copy(Data,2,Length(Data)-1);
         LastTx:=FormatDateTime('hh:nn:ss.zzz | ',Now)+LastRoom+' | '+Info.LastTalk;
         AMUDData.SendToRoom(Info.RoomID,'s'+ss(Info.PersonID)+ss(Info.LastTalk));
+        AMUDBots.Queue(Info.RoomID,Info.PersonID,Info.LastTalk);
        end;
       'd'://do something
         try
@@ -472,7 +473,15 @@ begin
 
   SendText(t);
 
-  //TODO: npc's
+  //bots
+  qr:=TQueryResult.Create(DBCon,'select Item.* from Bot'+
+    ' inner join Item on Item.ID=Bot.ItemID where Bot.RoomID=?',
+    [ARoomID]);
+  try
+    while qr.Read do SendText(ix('r+',qr));
+  finally
+    qr.Free;
+  end;
 
   //persons
   for i:=0 to MaxFeeds-1 do //TODO: lock?

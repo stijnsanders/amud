@@ -47,7 +47,7 @@ try
   <input type="hidden" name="i" value="[[=Context['i'].AsInteger]]" />
   <p>
   <b>>=qr['what']<</b><br/>
-  <input type="text" name="name" value="[[.name]]]" style="width:100%;" /><br />
+  <input type="text" name="name" value="[[.name]]" style="width:100%;" /><br />
   <textarea name="data" style="width:100%;height:8em;overflow:scroll;">>.data<</textarea><br />
   <input type="submit" value="Apply" id="s1" style="width:100%;" />
   </p>
