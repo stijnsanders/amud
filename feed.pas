@@ -11,7 +11,7 @@ type
   TAMUDDataFeed=class(TXxmWebSocket)
   private
     FLog:TFileStream;
-    FAdminKey:UTF8String;
+    FAdminKey,FLogHeader:UTF8String;
     procedure InitUser(const UserKey:UTF8String);
     procedure EnterRoom(ARoomID,ADoorID:integer);
   protected
@@ -212,6 +212,7 @@ begin
   Info:=TUserInfo.Create;
   FLog:=nil;
   FAdminKey:='';
+  FLogHeader:='...';
   LastTx:='';
   LastRoom:='';
 end;
@@ -219,7 +220,9 @@ end;
 procedure TAMUDDataFeed.Build(const Context: IXxmContext; const Caller: IXxmFragment;
   const Values: array of OleVariant; const Objects: array of TObject);
 begin
-  FAdminKey:=Context.ContextString(csRemoteAddress);
+  FLogHeader:=Context.ContextString(csRemoteAddress)
+    +';'+Context.ContextString(csUserAgent);
+    //TODO: more?
   inherited;
 end;
 
@@ -233,9 +236,13 @@ begin
    begin
     FLog:=TFileStream.Create(LogPath+FormatDateTime('yyyymmddhhnnsszzz',Now)+'_'+
       IntToHex(integer(@Self),8)+'.log',fmCreate);
-    s:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now)+' : '+AmudVersion+';'+
-      IntToStr(Info.FeedID)+';'+FAdminKey+#13#10;
+    s:=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now)+' : '+AmudVersion
+      +';'+IntToStr(Info.FeedID)
+      +';'+FAdminKey
+      +';'+FLogHeader
+      +#13#10;
     FLog.Write(s[1],Length(s));
+    FLogHeader:='';
    end
   else
    begin

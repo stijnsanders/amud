@@ -160,7 +160,7 @@ try{
         var n=document.getElementById("thing"+x[1]);
         if(n)n.remove();
       },
-      "r+":function(){//person enters
+      "r+":function(){//person enters room
         var p=document.getElementById("person"+x[1]);
         if(p)p.remove();
         var n=document.createElement("DIV");
@@ -182,7 +182,7 @@ try{
           window.setTimeout(function(){d.style.animation="";},1000);
         }
       },
-      "r-":function(){//user leaves
+      "r-":function(){//person leaves room
         var n=document.getElementById("person"+x[1]);
         if(n){
           n.textContent="("+x[2]+(x[3]?" \""+x[3]+"\"":"")+" took "+x[5]+(x[6]?" \""+x[6]+"\"":"")+")";
@@ -190,6 +190,10 @@ try{
           n.style.animation="new 1s";
           window.setTimeout(function(){n.remove();},5000);
         }
+      },
+      "l":function(){//person disconnect
+        var n=document.getElementById("person"+x[1]);
+        if(n)n.remove();
       },
       "i+":function(){//inventory add
         if(!document.getElementById("thing"+x[1])){

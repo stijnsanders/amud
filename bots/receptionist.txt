@@ -33,6 +33,9 @@ key: sorry 0
 	pat: *
 		a: It's okay.
 		a: Don't worry.
+key: thank 0
+	pat: * thank you *
+		a: You're welcome.
 key: room 0
 	pat: *
 		a: Booking is a bit of a mess for the moment.

@@ -180,15 +180,14 @@ begin
           for i:=0 to FBotsIndex-1 do
             if FBots[i].RoomID=RoomID then
              begin
-              //TODO: not i when storing state but real db BotID
-              s:=Format('s%db%d',[PersonID,i]);
+              BotID:=FBots[i].ItemID;
+              s:=Format('s%db%d',[PersonID,BotID]);
               d:=JSON(FState[s]);
               if d=nil then
                begin
                 d:=JSON;
                 FState[s]:=d;
                end;
-              BotID:=FBots[i].ItemID;
               Txt:=FBots[i].Bot.GetNextResponse(Txt,d);
 
               if Txt<>'' then
