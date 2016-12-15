@@ -1,4 +1,4 @@
-<!doctype html>
+[[@world]]<!doctype html>
 <html>
 <head>
 <title>Another Multi User Dungeon</title>
@@ -15,6 +15,6 @@
 <div id="persons"></div>
 <br /><br /><br />
 <div id="prompt"><input type="text" id="prompt1" /></div>
-<script src="amud.js">Script is not enabled.</script>
+<script src="amud.js[[?'v',AmudVersion]]">Script is not enabled.</script>
 </body>
 </html>

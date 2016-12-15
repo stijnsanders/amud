@@ -89,7 +89,7 @@ begin
        end;
       FBots[FBotsIndex].ItemID:=qr.GetInt('ItemID');
       FBots[FBotsIndex].RoomID:=qr.GetInt('RoomID');
-      FBots[FBotsIndex].DefaultWaitMS:=250;//?
+      FBots[FBotsIndex].DefaultWaitMS:=400;//?
       FBots[FBotsIndex].Bot:=BotByScriptName(qr.GetStr('Script'));
       inc(FBotsIndex);
      end;
