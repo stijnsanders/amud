@@ -7,6 +7,8 @@ uses Windows, SysUtils, Classes, chatbot, jsonDoc;
 type
   TAMUDBotCmd=(
     bcNone,
+    bcUserEnters,
+    bcUserLeaves,
     bcStatement,
     bcCommand
   );
@@ -42,6 +44,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure QueueUserEnters(RoomID,PersonID:integer);
+    procedure QueueUserLeaves(RoomID,PersonID:integer);
     procedure Queue(RoomID,PersonID:integer;const Statement:UTF8String);
   end;
 
@@ -176,7 +180,7 @@ begin
       end;
 
       case Cmd of
-        bcStatement:
+        bcUserEnters,bcUserLeaves,bcStatement:
           for i:=0 to FBotsIndex-1 do
             if FBots[i].RoomID=RoomID then
              begin
@@ -188,7 +192,12 @@ begin
                 d:=JSON;
                 FState[s]:=d;
                end;
-              Txt:=FBots[i].Bot.GetNextResponse(Txt,d);
+              case Cmd of
+                bcUserEnters:Txt:=FBots[i].Bot.Initial;
+                bcUserLeaves:Txt:=FBots[i].Bot.Final;
+                bcStatement:Txt:=FBots[i].Bot.GetNextResponse(Txt,d);
+                //else raise?
+              end;
 
               if Txt<>'' then
                 if Txt[1]='|' then
@@ -264,6 +273,16 @@ begin
     except
       //silent (log?)
     end;
+end;
+
+procedure TAMUDBots.QueueUserEnters(RoomID, PersonID: integer);
+begin
+  QueueInt(0,bcUserEnters,RoomID,PersonID,0,'');//TODO: user name?
+end;
+
+procedure TAMUDBots.QueueUserLeaves(RoomID, PersonID: integer);
+begin
+  QueueInt(0,bcUserLeaves,RoomID,PersonID,0,'');//TODO: user name?
 end;
 
 procedure TAMUDBots.Queue(RoomID,PersonID:integer;const Statement:UTF8String);

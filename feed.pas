@@ -458,7 +458,10 @@ var
 begin
   //notify others leaving
   if Info.RoomID<>0 then
+   begin
     AMUDData.SendToRoom(Info.RoomID,qx('r-',Info.PersonID)+qx('',ADoorID));
+    AMUDBots.QueueUserLeaves(Info.RoomID,Info.PersonID);
+   end;
   s:=qx('r+',Info.PersonID);
   t:=qx('r',ARoomID);
   LastRoom:=s+' | '+t;
@@ -489,17 +492,21 @@ begin
   finally
     qr.Free;
   end;
+  AMUDBots.QueueUserEnters(Info.RoomID,Info.PersonID);
 
   //persons
   for i:=0 to MaxFeeds-1 do //TODO: lock?
-    if (AMUDData.FFeeds[i]<>nil) and (AMUDData.FFeeds[i].Info.RoomID=ARoomID) then
-      try
-        AMUDData.FFeeds[i].SendText(s);//'r+'
+    try
+      if AMUDData.FFeeds[i]<>nil then
+       begin
+        if AMUDData.FFeeds[i].Info.RoomID=ARoomID then
+          AMUDData.FFeeds[i].SendText(s);//'r+'
         if Self<>AMUDData.FFeeds[i] then
           SendText(qx('r+',AMUDData.FFeeds[i].Info.PersonID));
-      except
-        //silent
-      end;
+       end;
+    except
+      //silent
+    end;
 end;
 
 function TAMUDDataFeed.NewKey: UTF8String;

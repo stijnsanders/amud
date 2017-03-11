@@ -53,7 +53,7 @@ goto: x
 type
   TChatBot=class(TObject)
   private
-    FScript,FValid:UTF8String;
+    FScript,FValid,FInitial,FFinal:UTF8String;
     FPattern:array of record
       pr:cardinal;
       ax,ay,bx,by,rx,ry,ln:integer;
@@ -74,6 +74,8 @@ type
     function GetNextResponse(const Statement:UTF8String;
       State:IJSONDocument):UTF8String;
     property CaseSensitive:boolean read FCaseSensitive write FCaseSensitive;
+    property Initial: UTF8String read FInitial;
+    property Final:UTF8String read FFinal;
   end;
 
   EChatBotError=class(Exception);
@@ -101,6 +103,8 @@ begin
   FScript:='';
   //FToLower:=true;//default
   FValid:='abcdefghijklmnopqrstuvwxyz''';//default
+  FInitial:='';
+  FFinal:='';
   FCaseSensitive:=false;
   SetLength(FPattern,0);
   SetLength(FResponse,0);
@@ -428,10 +432,18 @@ begin
       '#',';','/'://ignore line
           UpToEOL(bx,by);
       'i':
-        if w='initial' then UpToEOL(bx,by)//TODO
+        if w='initial' then
+         begin
+          UpToEOL(bx,by);
+          FInitial:=Copy(FScript,bx,by);
+         end
         else UnknownDirective:=true;
       'f':
-        if w='final' then UpToEOL(bx,by)//TODO
+        if w='final' then
+         begin
+          UpToEOL(bx,by);
+          FFinal:=Copy(FScript,bx,by);
+         end
         else UnknownDirective:=true;
       'q':
         if w='quit' then UpToEOL(bx,by)//TODO
